@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanisher: Auto Delete Browser History</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-card-hover: rgba(51, 65, 85, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #6366f1;
+            --accent-primary-hover: #4f46e5;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --power-active: #10b981;
+            --power-glow: rgba(16, 185, 129, 0.3);
+            --danger-bg: rgba(239, 68, 68, 0.12);
+            --danger-text: #f87171;
+            --danger-hover: #ef4444;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            width: 330px;
+            user-select: none;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Header */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .app-title-group {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .app-icon {
+            width: 26px;
+            height: 26px;
+            background: var(--accent-gradient);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .app-icon svg {
+            width: 15px;
+            height: 15px;
+            fill: #ffffff;
+        }
+
+        .app-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .app-subtitle {
+            font-size: 8.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 175px;
+        }
+
+        .github-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 2.5px 7px;
+            border-radius: 20px;
+            font-size: 9.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .github-badge:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .app-footer {
+            text-align: center;
+            font-size: 9px;
+            color: var(--text-muted);
+            padding-top: 2px;
+        }
+
+        .app-footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .app-footer a:hover {
+            color: var(--accent-primary);
+            text-decoration: underline;
+        }
+
+        /* Power & Toggle Controls */
+        .switches-group {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            backdrop-filter: blur(12px);
+        }
+
+        .data-options-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            max-height: none;
+            overflow: visible;
+        }
+
+        .group-label {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 4px 8px 2px;
+        }
+
+        .checkbox-wrapper-2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 3.5px 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+            min-height: 24px;
+        }
+
+        .checkbox-wrapper-2:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .checkbox-wrapper-2.power-row {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 6px 8px;
+            margin-bottom: 2px;
+        }
+
+        .checkbox-label-content {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .checkbox-icon {
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .checkbox-wrapper-2 label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Modern Toggle Switch Styling */
+        .checkbox-wrapper-2 .checkbox-btn {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 28px;
+            height: 15px;
+            background-color: #334155;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn::after {
+            content: "";
+            position: absolute;
+            top: 1.5px;
+            left: 2px;
+            width: 10px;
+            height: 10px;
+            background-color: #f1f5f9;
+            border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn:checked {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn:checked::after {
+            transform: translateX(13px);
+            background-color: #ffffff;
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn.power-btn {
+            width: 32px;
+            height: 17px;
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn.power-btn::after {
+            top: 2px;
+            left: 2px;
+            width: 11px;
+            height: 11px;
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn.power-btn:checked {
+            background-color: var(--power-active);
+            border-color: var(--power-active);
+            box-shadow: 0 0 10px var(--power-glow);
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn.power-btn:checked::after {
+            transform: translateX(15px);
+            background-color: #ffffff;
+        }
+
+        .checkbox-wrapper-2 .checkbox-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .checkbox-wrapper-2:has(.checkbox-btn:disabled) {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .checkbox-wrapper-2:has(.checkbox-btn:disabled) label {
+            cursor: not-allowed;
+        }
+
+        /* Radio Group / Schedule Container */
+        .content-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .radio-group {
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 8px 10px 10px;
+            backdrop-filter: blur(12px);
+        }
+
+        .radio-group legend {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 0 6px;
+            margin-bottom: 6px;
+        }
+
+        .radio-options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .cleanup-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-radius: var(--radius-sm);
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .cleanup-btn:hover {
+            border-color: var(--border-hover);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .cleanup-btn input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            margin: 0;
+            z-index: 1;
+        }
+
+        .cleanup-btn label {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 7px 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-align: center;
+        }
+
+        .cleanup-btn:has(input[type="radio"]:checked) {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .cleanup-btn:has(input[type="radio"]:checked) label {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .cleanup-btn:has(input[type="radio"]:disabled) {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+            background: rgba(15, 23, 42, 0.4);
+            box-shadow: none;
+        }
+
+        .cleanup-btn:has(input[type="radio"]:disabled) input,
+        .cleanup-btn:has(input[type="radio"]:disabled) label {
+            cursor: not-allowed;
+        }
+
+        /* Custom Schedule Controls */
+        .custom-schedule-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 7px;
+            padding-top: 7px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .custom-cleanup-btn {
+            flex: 0 0 76px;
+        }
+
+        .custom-dropdowns {
+            flex: 1;
+            display: flex;
+            gap: 5px;
+        }
+
+        .custom-select {
+            background-color: rgba(15, 23, 42, 0.85);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .custom-number-select {
+            width: 56px;
+            text-align: center;
+        }
+
+        .custom-unit-select {
+            flex: 1;
+        }
+
+        .custom-select:hover:not(:disabled) {
+            border-color: var(--border-hover);
+            background-color: rgba(30, 41, 59, 0.95);
+        }
+
+        .custom-select:focus:not(:disabled) {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .custom-select:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .custom-select option {
+            background-color: #1e293b;
+            color: #f8fafc;
+        }
+
+        /* Clear Now Button */
+        .clear-now-btn-container {
+            margin-top: 1px;
+        }
+
+        .clear-now-btn {
+            width: 100%;
+            padding: 9.5px 12px;
+            background: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-md);
+            color: var(--danger-text);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--transition-smooth);
+            letter-spacing: 0.01em;
+        }
+
+        .clear-now-btn:hover:not(:disabled) {
+            background: var(--danger-hover);
+            color: #ffffff;
+            border-color: var(--danger-hover);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .clear-now-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .clear-now-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: rgba(239, 68, 68, 0.15);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .clear-now-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="app-title-group">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4l8 16 8-16"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="app-title">Vanisher</h1>
+                    <div class="app-subtitle" title="Vanisher: Auto Delete Browser History">Auto Delete Browser History</div>
+                </div>
+            </div>
+            <a href="https://github.com/Awadul" target="_blank" class="github-badge" title="Developer: Muhammad Awais Abdullah (Awadul)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span>Awadul</span>
+            </a>
+        </header>
+
+        <!-- Power & Cleanup Options -->
+        <div class="switches-group">
+            <!-- Power Switch -->
+            <div class="checkbox-wrapper-2 power-row">
+                <div class="checkbox-label-content">
+                    <div class="checkbox-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <label for="power-btn">Power Status</label>
+                </div>
+                <input type="checkbox" class="checkbox-btn power-btn" id="power-btn">
+            </div>
+
+            <!-- Scrollable list of cleanup data types -->
+            <div class="group-label">Data To Clean</div>
+            <div class="data-options-scroll">
+                <!-- 1. Browsing history -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <label for="clear-history-btn">Browsing history</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-history-btn" id="clear-history-btn">
+                </div>
+
+                <!-- 2. Download history -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </div>
+                        <label for="clear-downloads-btn">Download history</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-downloads-btn" id="clear-downloads-btn">
+                </div>
+
+                <!-- 3. Cache -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <label for="clear-cache-btn">Cache</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-cache-btn" id="clear-cache-btn">
+                </div>
+
+                <!-- 4. Cookies -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+                                <path d="M8.5 8.5v.01"></path>
+                                <path d="M7 15v.01"></path>
+                                <path d="M15 15v.01"></path>
+                                <path d="M11 12v.01"></path>
+                            </svg>
+                        </div>
+                        <label for="clear-cookies-btn">Cookies</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-cookies-btn" id="clear-cookies-btn">
+                </div>
+
+                <!-- 5. Local storage -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                            </svg>
+                        </div>
+                        <label for="clear-localstorage-btn">Local storage</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-localstorage-btn" id="clear-localstorage-btn">
+                </div>
+
+                <!-- 6. Saved passwords -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <label for="clear-passwords-btn">Saved passwords</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-passwords-btn" id="clear-passwords-btn">
+                </div>
+
+                <!-- 7. Form data -->
+                <div class="checkbox-wrapper-2">
+                    <div class="checkbox-label-content">
+                        <div class="checkbox-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <label for="clear-formdata-btn">Form data</label>
+                    </div>
+                    <input type="checkbox" class="checkbox-btn clear-formdata-btn" id="clear-formdata-btn">
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div class="content-container">
+            <fieldset class="radio-group">
+                <legend>Schedule Cleanup</legend>
+                <div class="radio-options-grid">
+                    <div class="cleanup-btn">
+                        <input type="radio" name="schedule-time" id="option-1" value="option-1">
+                        <label for="option-1">15 Mins</label>
+                    </div>
+
+                    <div class="cleanup-btn">
+                        <input type="radio" name="schedule-time" id="option-2" value="option-2">
+                        <label for="option-2">1 Hour</label>
+                    </div>
+
+                    <div class="cleanup-btn">
+                        <input type="radio" name="schedule-time" id="option-3" value="option-3">
+                        <label for="option-3">1 Day</label>
+                    </div>
+
+                    <div class="cleanup-btn">
+                        <input type="radio" name="schedule-time" id="option-4" value="option-4">
+                        <label for="option-4">1 Week</label>
+                    </div>
+                </div>
+
+                <!-- Custom Schedule Picker Row -->
+                <div class="custom-schedule-wrapper">
+                    <div class="cleanup-btn custom-cleanup-btn">
+                        <input type="radio" name="schedule-time" id="option-custom" value="option-custom">
+                        <label for="option-custom">Custom</label>
+                    </div>
+                    <div class="custom-dropdowns">
+                        <select id="custom-number" class="custom-select custom-number-select">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                        </select>
+                        <select id="custom-unit" class="custom-select custom-unit-select">
+                            <option value="minutes">Minutes</option>
+                            <option value="hours" selected>Hours</option>
+                            <option value="days">Days</option>
+                            <option value="weeks">Weeks</option>
+                            <option value="months">Months</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <!-- Clear Now Button -->
+        <div class="clear-now-btn-container">
+            <button class="clear-now-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Clear Now
+            </button>
+        </div>
+
+        <!-- Footer / Credits -->
+        <footer class="app-footer">
+            <span>Vanisher &bull; Developed by <a href="https://github.com/Awadul" target="_blank">Awadul</a></span>
+        </footer>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>

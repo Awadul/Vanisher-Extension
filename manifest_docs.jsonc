@@ -1,0 +1,183 @@
+// absolute core of the extension
+{
+    "manifest_version": 3, // -> Latest version of the manifest file standard set by Google Chrome.
+    "name": "Job Application Assistant", // -> Name of the extension (shown in the Chrome Web Store). Max 75 characters.
+    "version": "1.0.0", // -> Version of the extension (shown in the Chrome Web Store). Manages auto-updates.
+    "description": "Automatically fills job applications with your information", // -> Short summary explaining what your extension does. Max 132 characters.
+    "icons": {
+        "16": "images/icon16.png", // -> Used as the favicon inside extension option pages.
+        "32": "images/icon32.png", // -> Windows system icon metric asset.
+        "48": "images/icon48.png", // -> Displayed on the Chrome extensions management page (chrome://extensions).
+        "128": "images/icon128.png" // -> Displayed in the Chrome Web store and during installation.
+    },
+    "author": "developer@example.com", // -> Email address or name of the extension developer/organization.
+    "homepage_url": "https://github.com", // -> Homepage URL or GitHub link for your project.
+    "short_name": "Job Assist", // -> Shortened name used if the original title is too long for small UI shelves.
+    "version_name": "1.0.0-beta", // -> Descriptive version name displayed alongside the version number (purely cosmetic).
+    "minimum_chrome_version": "110.0.0", // -> Minimum Chrome engine version required to run the extension.
+    "background": {
+        "service_worker": "scripts/background.js", // -> Background service worker file that runs silently on event triggers.
+        "type": "module" // -> Allows the use of standard ES Modules (import/export syntax) inside your service worker.
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*://*",
+                "https://*://*"
+            ], // -> URL match patterns that trigger your code injection.
+            "js": [
+                "scripts/content.js"
+            ], // -> Array of JavaScript files injected directly into matching page contexts.
+            "css": [
+                "styles/content.css"
+            ], // -> Array of CSS files injected to style or override target elements.
+            "run_at": "document_end", // -> Injection timing: "document_start" (before DOM), "document_end" (DOM ready), or "document_idle" (after load).
+            "all_frames": false, // -> Optional: true runs the script in all iframes on the page; false runs it only in the top frame.
+            "match_about_blank": false // -> Optional: Specifies whether the script should inject into blank/parentless frames.
+        }
+    ], // -> scripts that will run on the website 
+    "user_scripts": {
+        "api_script": "scripts/user_runtime.js" // -> Registers a runtime script orchestrator for user script managers (e.g., Tampermonkey tools).
+    },
+    ////////////////////////////////////////////////////////////////////////////
+    // User Interface & Layout Configuration
+    ////////////////////////////////////////////////////////////////////////////
+    "action": {
+        "default_popup": "popup.html", // -> The HTML pane that drops down when clicking the toolbar icon.
+        "default_icon": {
+            "16": "images/16.png",
+            "48": "images/48.png",
+            "128": "images/128.png"
+        },
+        "default_title": "Job Application Assistant" // -> Tooltip that appears when hovering over the extension icon.
+    }, // -> action that will happen when the extension is clicked
+    "side_panel": {
+        "default_path": "sidepanel.html" // -> Defines the main HTML document loaded inside the browser's side panel shelf.
+    }, // -> side panel that will open when the extension is clicked
+    "options_ui": {
+        "page": "options.html", // -> The HTML file providing user configuration panels.
+        "open_in_tab": false // -> false embeds the options panel in an inline modal; true opens it in a full browser tab.
+    },
+    "devtools_page": "devtools.html", // -> Embeds your extension directly into a dedicated custom tab inside DevTools (F12 panels).
+    ////////////////////////////////////////////////////////////////////////////
+    // Security, Permissions & Gatekeeping
+    ////////////////////////////////////////////////////////////////////////////
+    "permissions": [
+        "storage", // -> Unlocks the chrome.storage API (local, sync, managed states).
+        "unlimitedStorage", // -> Essential: Removes the 10MB data quota limits on chrome.storage.local and IndexedDB.
+        "session", // -> Unlocks short-lived, memory-only session storage (chrome.storage.session).
+        "tabs", // -> Grants access to privileged properties on tab objects (URL, Title, Favicon).
+        "scripting", // -> Unlocks runtime code/CSS execution into target frames via background service workers.
+        "cookies", // -> Allows reading, writing, and subscribing to cookies across matching browser spaces.
+        "contextMenus", // -> Allows building custom selection options inside the right-click menu.
+        "notifications", // -> Lets the extension display native OS desktop alert cards.
+        "sidePanel", // -> Programmatically opens or updates configurations for the side panel container.
+        "alarms" // -> Wakes service workers at precise scheduling frequencies without maintaining continuous execution loops.
+    ],
+    "host_permissions": [
+        "https://yourbackend.com*", // -> Permits network traffic and fetch operations to cross-origin APIs without CORS blocks.
+        "*://*://*" // -> Grants access to read/write pages matching this ecosystem seamlessly.
+    ],
+    "optional_permissions": [
+        "history", // -> User-approved on-demand right to read, write, and clear browser surfing history.
+        "downloads" // -> Allows initializing, tracking, and canceling file down-streams.
+    ],
+    "optional_host_permissions": [
+        "<all_urls>" // -> Asks user for wide access runtime approvals later, preventing high-permission warnings at install time.
+    ],
+    "storage": {
+        "managed_schema": "schema.json" // -> Defines enterprise policies. Allows IT admins to push pre-configured parameters to the extension.
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self';", // -> Locks execution environments. Disallows unsafe strings or foreign code evaluations.
+        "sandbox": "script-src 'self' 'unsafe-eval'; object-src 'self';" // -> Allows eval usage exclusively when sequestered within a custom sandbox block.
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "images/*.png",
+                "fonts/*"
+            ], // -> Lists extension files exposed directly to web environments.
+            "matches": [
+                "<all_urls>"
+            ], // -> Web domains permitted to request these internal resources.
+            "use_dynamic_url": true // -> Generates an ephemeral cryptographic URL slug on every browser launch to defeat tracking hashes.
+        }
+    ],
+    "sandbox": {
+        "pages": [
+            "sandbox.html"
+        ] // -> Runs these pages in an completely isolated frame environment away from high extension privileges.
+    },
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0...", // -> Hardcodes a fixed public key. Keeps local extension IDs identical to match store profiles, preserving testing state.
+    "oauth2": {
+        "client_id": "123456-abcdef.apps.googleusercontent.com", // -> Client ID obtained from Google Cloud Console.
+        "scopes": [
+            "https://googleapis.com", // -> Scope required to read user profile identities.
+            "https://googleapis.com" // -> Scope required to interact with specified file instances on Google Drive.
+        ]
+    },
+    "cross_origin_embedder_policy": {
+        "value": "require-corp" // -> Options: "require-corp" or "credentialless". Controls cross-origin media embedding.
+    },
+    "cross_origin_opener_policy": {
+        "value": "same-origin" // -> Options: "same-origin", "same-origin-allow-popups", or "unsafe-none". Isolates window contexts.
+    },
+    "incognito": "spanning", // -> Options: "spanning" (shares one background worker instance) or "split" (creates an independent worker for incognito).
+    "requirements": {
+        "3d": {
+            "features": [
+                "webgl"
+            ] // -> Blocks the extension from downloading if hardware features (like WebGL engine support) are missing.
+        }
+    },
+    ////////////////////////////////////////////////////////////////////////////
+    // System Hooks, Utilities & Locales
+    ////////////////////////////////////////////////////////////////////////////
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+Y",
+                "mac": "Command+Shift+Y"
+            } // -> Automatically binds a hotkey sequence to trigger your main interactive popup action window.
+        },
+        "toggle-feature": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+H"
+            },
+            "description": "Toggle job overlay UI panel on page forms" // -> Triggers custom actions received via chrome.commands.onCommand listeners.
+        }
+    },
+    "omnibox": {
+        "keyword": "apply" // -> Type 'apply' in the browser address bar + [Space/Tab] to funnel address inputs straight to extension commands.
+    },
+    "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "ruleset_1",
+                "enabled": true,
+                "path": "rules/network_rules.json" // -> Points to a json array file containing declarative intercept rules to block/redirect traffic.
+            }
+        ]
+    },
+    "externally_connectable": {
+        "matches": [
+            "https://*://*"
+        ], // -> External web clients permitted to fire explicit window events straight into extension listeners.
+        "ids": [
+            "abcdefghijklmnopqrstuvwxyzabcdef"
+        ], // -> Targeted partner extensions allowed to exchange cross-extension message protocols.
+        "accepts_tls_channel_id": false
+    },
+    ////////////////////////////////
+    ////////////////////////////////
+    ////////////////////////////////
+    // Internationalization & Overrides
+    // 
+    // 
+    ////////////////////////////////
+    "default_locale": "", // define the structural language fallback mechanism (e.g. "en" vs "en-US")
+    "chrome_url_overrides": {}, // -> hijacks standard foundational user screens, allowing you to custom-build replacements for the newtab, bookmark, or history interface
+    "chrome_settings_overrides": {}, // -> programmatically alter base engine options like custom default homepages or engine search search endpoints (https:)
+    "import": {} // -> import shared resources from other extensions
+}
