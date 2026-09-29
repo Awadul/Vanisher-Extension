@@ -9,6 +9,10 @@ const clearLocalStorageBtn = document.querySelector(".clear-localstorage-btn")
 const clearPasswordsBtn = document.querySelector(".clear-passwords-btn")
 const clearFormDataBtn = document.querySelector(".clear-formdata-btn")
 const clearNowBtn = document.querySelector(".clear-now-btn")
+const themeToggleBtn = document.getElementById("theme-toggle-btn");
+const donateLink = document.getElementById("donate-link");
+const requestFeatureLink = document.getElementById("request-feature-link");
+const supportLink = document.getElementById("support-link");
 const radioInputs = document.querySelectorAll('[name="schedule-time"]');
 const customNumberSelect = document.getElementById("custom-number");
 const customUnitSelect = document.getElementById("custom-unit");
@@ -330,6 +334,51 @@ clearNowBtn.addEventListener("click", (event) => {
         console.log("user denied to clear history now: ", clearConsent);
     }
 })
+
+// Theme management (Dark / Light)
+const applyTheme = (theme) => {
+    document.documentElement.setAttribute("data-theme", theme);
+    chrome.storage.local.set({ appTheme: theme });
+};
+
+chrome.storage.local.get("appTheme", (result) => {
+    if (result.appTheme) {
+        applyTheme(result.appTheme);
+    } else {
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(prefersDark ? "dark" : "dark");
+    }
+});
+
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+        const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        applyTheme(newTheme);
+    });
+}
+
+// Unstyled support and action links
+if (donateLink) {
+    donateLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: "https://www.patreon.com/awadullabs" });
+    });
+}
+
+if (requestFeatureLink) {
+    requestFeatureLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: "https://github.com/Awadul/Vanisher-Extension/issues" });
+    });
+}
+
+if (supportLink) {
+    supportLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: "https://www.patreon.com/awadullabs" });
+    });
+}
 
 // load the state of the extension from the local storage when the pop up is opened
 const initialStorageKeys = [

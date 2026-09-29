@@ -25,9 +25,54 @@
             --danger-bg: rgba(239, 68, 68, 0.12);
             --danger-text: #f87171;
             --danger-hover: #ef4444;
+            --btn-cleanup-bg: rgba(15, 23, 42, 0.6);
+            --btn-cleanup-checked-bg: rgba(99, 102, 241, 0.15);
+            --btn-cleanup-checked-text: #ffffff;
+            --select-bg: rgba(15, 23, 42, 0.85);
+            --select-text: #f8fafc;
+            --toggle-off-bg: #334155;
+            --badge-bg: rgba(255, 255, 255, 0.05);
+            --badge-hover-bg: rgba(255, 255, 255, 0.1);
+            --badge-text: var(--text-secondary);
+            --link-color: #38bdf8;
+            --link-hover: #7dd3fc;
+            --box-shadow-card: none;
             --radius-md: 12px;
             --radius-sm: 8px;
             --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-card-hover: #ffffff;
+            --border-color: rgba(15, 23, 42, 0.08);
+            --border-hover: rgba(15, 23, 42, 0.18);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent-primary: #4f46e5;
+            --accent-primary-hover: #4338ca;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --accent-glow: rgba(79, 70, 229, 0.15);
+            --power-active: #059669;
+            --power-glow: rgba(5, 150, 105, 0.2);
+            --danger-bg: rgba(239, 68, 68, 0.08);
+            --danger-text: #dc2626;
+            --danger-hover: #dc2626;
+            --btn-cleanup-bg: #f8fafc;
+            --btn-cleanup-checked-bg: rgba(79, 70, 229, 0.09);
+            --btn-cleanup-checked-text: #4f46e5;
+            --select-bg: #ffffff;
+            --select-text: #0f172a;
+            --toggle-off-bg: #cbd5e1;
+            --badge-bg: rgba(15, 23, 42, 0.05);
+            --badge-hover-bg: rgba(15, 23, 42, 0.1);
+            --badge-text: #475569;
+            --link-color: #0284c7;
+            --link-hover: #0369a1;
+            --box-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         * {
@@ -44,6 +89,7 @@
             user-select: none;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .container {
@@ -101,27 +147,77 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 175px;
+            max-width: 155px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            padding: 0;
+            outline: none;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--badge-hover-bg);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle-btn svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        .theme-toggle-btn .moon-icon {
+            display: none;
+        }
+
+        .theme-toggle-btn .sun-icon {
+            display: block;
+        }
+
+        [data-theme="light"] .theme-toggle-btn .sun-icon {
+            display: none;
+        }
+
+        [data-theme="light"] .theme-toggle-btn .moon-icon {
+            display: block;
         }
 
         .github-badge {
             display: flex;
             align-items: center;
             gap: 4px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--badge-bg);
             border: 1px solid var(--border-color);
             padding: 2.5px 7px;
             border-radius: 20px;
             font-size: 9.5px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--badge-text);
             text-decoration: none;
             transition: var(--transition-smooth);
         }
 
         .github-badge:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            background: var(--badge-hover-bg);
+            color: var(--text-primary);
             border-color: var(--border-hover);
             transform: translateY(-1px);
         }
@@ -154,6 +250,7 @@
             flex-direction: column;
             gap: 1px;
             backdrop-filter: blur(12px);
+            box-shadow: var(--box-shadow-card);
         }
 
         .data-options-scroll {
@@ -223,12 +320,12 @@
             -webkit-appearance: none;
             width: 28px;
             height: 15px;
-            background-color: #334155;
+            background-color: var(--toggle-off-bg);
             border-radius: 15px;
             position: relative;
             cursor: pointer;
             outline: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             transition: all 0.2s ease-in-out;
             flex-shrink: 0;
         }
@@ -308,6 +405,7 @@
             border-radius: var(--radius-md);
             padding: 8px 10px 10px;
             backdrop-filter: blur(12px);
+            box-shadow: var(--box-shadow-card);
         }
 
         .radio-group legend {
@@ -331,7 +429,7 @@
             display: flex;
             align-items: center;
             border-radius: var(--radius-sm);
-            background: rgba(15, 23, 42, 0.6);
+            background: var(--btn-cleanup-bg);
             border: 1px solid var(--border-color);
             transition: var(--transition-smooth);
             cursor: pointer;
@@ -340,7 +438,7 @@
 
         .cleanup-btn:hover {
             border-color: var(--border-hover);
-            background: rgba(30, 41, 59, 0.9);
+            background: var(--bg-card-hover);
         }
 
         .cleanup-btn input[type="radio"] {
@@ -372,13 +470,13 @@
         }
 
         .cleanup-btn:has(input[type="radio"]:checked) {
-            background: rgba(99, 102, 241, 0.15);
+            background: var(--btn-cleanup-checked-bg);
             border-color: var(--accent-primary);
             box-shadow: 0 0 10px var(--accent-glow);
         }
 
         .cleanup-btn:has(input[type="radio"]:checked) label {
-            color: #ffffff;
+            color: var(--btn-cleanup-checked-text);
             font-weight: 600;
         }
 
@@ -386,7 +484,7 @@
             opacity: 0.35;
             cursor: not-allowed;
             border-color: var(--border-color);
-            background: rgba(15, 23, 42, 0.4);
+            background: var(--btn-cleanup-bg);
             box-shadow: none;
         }
 
@@ -402,7 +500,7 @@
             gap: 6px;
             margin-top: 7px;
             padding-top: 7px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid var(--border-color);
         }
 
         .custom-cleanup-btn {
@@ -416,8 +514,8 @@
         }
 
         .custom-select {
-            background-color: rgba(15, 23, 42, 0.85);
-            color: var(--text-primary);
+            background-color: var(--select-bg);
+            color: var(--select-text);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             padding: 6px 8px;
@@ -440,7 +538,7 @@
 
         .custom-select:hover:not(:disabled) {
             border-color: var(--border-hover);
-            background-color: rgba(30, 41, 59, 0.95);
+            background-color: var(--bg-card-hover);
         }
 
         .custom-select:focus:not(:disabled) {
@@ -452,12 +550,12 @@
             opacity: 0.35;
             cursor: not-allowed;
             border-color: var(--border-color);
-            background: rgba(15, 23, 42, 0.4);
+            background: var(--btn-cleanup-bg);
         }
 
         .custom-select option {
-            background-color: #1e293b;
-            color: #f8fafc;
+            background-color: var(--select-bg);
+            color: var(--select-text);
         }
 
         /* Clear Now Button */
@@ -508,6 +606,32 @@
             height: 14px;
             fill: currentColor;
         }
+
+        /* Unstyled Support / Action Links */
+        .nav-links-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 4px 6px 2px;
+            margin-top: 1px;
+        }
+
+        .nav-link {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--link-color);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 2px 4px;
+        }
+
+        .nav-link:hover {
+            color: var(--link-hover);
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -526,12 +650,30 @@
                     <div class="app-subtitle" title="Vanisher: Auto Delete Browser History">Auto Delete Browser History</div>
                 </div>
             </div>
-            <a href="https://github.com/Awadul" target="_blank" class="github-badge" title="Developer: Muhammad Awais Abdullah (Awadul)">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                <span>Awadul</span>
-            </a>
+            <div class="header-actions">
+                <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle Light / Dark Theme" type="button" aria-label="Toggle Theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <a href="https://github.com/Awadul" target="_blank" class="github-badge" title="Developer: Muhammad Awais Abdullah (Awadul)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    <span>Awadul</span>
+                </a>
+            </div>
         </header>
 
         <!-- Power & Cleanup Options -->
@@ -741,7 +883,7 @@
 
         <!-- Clear Now Button -->
         <div class="clear-now-btn-container">
-            <button class="clear-now-btn">
+            <button class="clear-now-btn" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -751,6 +893,13 @@
                 Clear Now
             </button>
         </div>
+
+        <!-- Unstyled Support / Action Links -->
+        <nav class="nav-links-row" aria-label="Support and links">
+            <a href="https://www.patreon.com/awadullabs" id="donate-link" class="nav-link" target="_blank">Donate</a>
+            <a href="https://github.com/Awadul/Vanisher-Extension/issues" id="request-feature-link" class="nav-link" target="_blank">Request Feature</a>
+            <a href="https://www.patreon.com/awadullabs" id="support-link" class="nav-link" target="_blank">Support</a>
+        </nav>
 
         <!-- Footer / Credits -->
         <footer class="app-footer">
